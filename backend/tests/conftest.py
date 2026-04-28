@@ -1,11 +1,22 @@
+import os
 import pytest
 from unittest.mock import patch
 from fastapi.testclient import TestClient
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
-import app.main as main_module
-from app.main import app
-from app.database import Base, get_db
+
+# Fournit des valeurs par défaut avant tout import de l'app so that
+# pydantic-settings can build Settings() even without a .env file.
+os.environ.setdefault("POSTGRES_USER", "test")
+os.environ.setdefault("POSTGRES_PASSWORD", "test")
+os.environ.setdefault("POSTGRES_DB", "test")
+os.environ.setdefault("POSTGRES_HOST", "localhost")
+os.environ.setdefault("POSTGRES_PORT", "5432")
+os.environ.setdefault("REDIS_URL", "redis://localhost:6379/0")
+
+import app.main as main_module  # noqa: E402
+from app.main import app  # noqa: E402
+from app.database import Base, get_db  # noqa: E402
 
 # ── Base de données SQLite en mémoire pour les tests ────────
 SQLALCHEMY_TEST_DATABASE_URL = "sqlite:///./test.db"
