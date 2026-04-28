@@ -11,6 +11,10 @@ alembic==1.13.1
 celery==5.4.0
 redis==5.0.4
 
+# NLP
+transformers==4.40.0
+torch==2.3.0
+
 # Utilitaires
 python-dotenv==1.0.1
 pydantic-settings==2.2.1
