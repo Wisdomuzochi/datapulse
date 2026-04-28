@@ -1,0 +1,16 @@
+# API
+fastapi==0.111.0
+uvicorn[standard]==0.29.0
+
+# Base de données
+sqlalchemy==2.0.30
+psycopg2==2.9.9
+alembic==1.13.1
+
+# Worker
+celery==5.4.0
+redis==5.0.4
+
+# Utilitaires
+python-dotenv==1.0.1
+pydantic-settings==2.2.1
