@@ -1,7 +1,5 @@
-
 services:
 
-  # ── 1. Base de données PostgreSQL ──────────────────────────
   db:
     image: postgres:15-alpine
     env_file: .env
@@ -15,7 +13,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── 2. Redis (broker de messages pour Celery) ───────────────
   redis:
     image: redis:7-alpine
     ports:
@@ -26,7 +23,6 @@ services:
       timeout: 5s
       retries: 5
 
-  # ── 3. API FastAPI ──────────────────────────────────────────
   api:
     build:
       context: ./backend
@@ -43,7 +39,6 @@ services:
         condition: service_healthy
     command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
 
-  # ── 4. Worker Celery ────────────────────────────────────────
   worker:
     build:
       context: ./backend
@@ -58,5 +53,34 @@ services:
         condition: service_healthy
     command: celery -A worker.tasks worker --loglevel=info
 
+  # ── Nouveau : Prometheus ─────────────────────────────────
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./monitoring/prometheus.yml:/etc/prometheus/prometheus.yml
+      - prometheus_data:/prometheus
+    command:
+      - "--config.file=/etc/prometheus/prometheus.yml"
+      - "--storage.tsdb.path=/prometheus"
+    depends_on:
+      - api
+
+  # ── Nouveau : Grafana ────────────────────────────────────
+  grafana:
+    image: grafana/grafana:10.4.0
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana_data:/var/lib/grafana
+    environment:
+      - GF_SECURITY_ADMIN_PASSWORD=datapulse123
+      - GF_USERS_ALLOW_SIGN_UP=false
+    depends_on:
+      - prometheus
+
 volumes:
   postgres_data:
+  prometheus_data:
+  grafana_data:

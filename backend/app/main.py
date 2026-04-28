@@ -1,8 +1,9 @@
 from fastapi import FastAPI
 from app.api.routes.health import router as health_router
 from app.api.routes.ingest import router as ingest_router
-from app.api.routes.results import router as results_router  # ← nouveau
+from app.api.routes.results import router as results_router
 from app.database import engine, Base
+from prometheus_fastapi_instrumentator import Instrumentator
 import app.models
 
 Base.metadata.create_all(bind=engine)
@@ -13,9 +14,13 @@ app = FastAPI(
     version="0.1.0",
 )
 
+# ── Prometheus ───────────────────────────────────────────────
+Instrumentator().instrument(app).expose(app)
+
 app.include_router(health_router, prefix="/api/v1", tags=["Health"])
 app.include_router(ingest_router, prefix="/api/v1", tags=["Pipeline"])
-app.include_router(results_router, prefix="/api/v1", tags=["Results"])  # ← nouveau
+app.include_router(results_router, prefix="/api/v1", tags=["Results"])
+
 
 @app.get("/")
 def root():
