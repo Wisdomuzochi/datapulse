@@ -1,20 +1,27 @@
 from fastapi import FastAPI
+from contextlib import asynccontextmanager
 from app.api.routes.health import router as health_router
 from app.api.routes.ingest import router as ingest_router
 from app.api.routes.results import router as results_router
 from app.database import engine, Base
-from prometheus_fastapi_instrumentator import Instrumentator
 import app.models
 
-Base.metadata.create_all(bind=engine)
+
+@asynccontextmanager
+async def lifespan(app: FastAPI):
+    """Exécuté au démarrage et à l'arrêt de l'app."""
+    Base.metadata.create_all(bind=engine)
+    yield
+
 
 app = FastAPI(
     title="DataPulse API",
     description="ETL pipeline and analytics API with NLP processing.",
     version="0.1.0",
+    lifespan=lifespan,
 )
 
-# ── Prometheus ───────────────────────────────────────────────
+from prometheus_fastapi_instrumentator import Instrumentator
 Instrumentator().instrument(app).expose(app)
 
 app.include_router(health_router, prefix="/api/v1", tags=["Health"])
