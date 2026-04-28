@@ -11,9 +11,10 @@ alembic==1.13.1
 celery==5.4.0
 redis==5.0.4
 
-# NLP
+# NLP — CPU only (pas de CUDA, réduit l'image de 4Go à 500Mo)
 transformers==4.40.0
-torch==2.3.0+cpu --extra-index-url https://download.pytorch.org/whl/cpu
+--extra-index-url https://download.pytorch.org/whl/cpu
+torch==2.3.0+cpu
 
 # Monitoring
 prometheus-fastapi-instrumentator==6.1.0
