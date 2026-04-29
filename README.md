@@ -80,8 +80,7 @@ Une plateforme **ETL + NLP** de bout en bout qui ingère des textes bruts, les a
 | Base de données | PostgreSQL 15 |
 | Message broker | Redis 7 |
 | Worker asynchrone | Celery 5.4 |
-| Modèle NLP | DistilBERT (HuggingFace Transformers) |
-| Monitoring | Prometheus + Grafana |
+| Modèle NLP | BERT Multilingue — nlptown/bert-base-multilingual-uncased-sentiment || Monitoring | Prometheus + Grafana |
 | Conteneurisation | Docker + Docker Compose |
 | CI/CD | GitHub Actions |
 | Registry | GitHub Container Registry (ghcr.io) |
