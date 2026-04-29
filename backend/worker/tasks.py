@@ -39,18 +39,27 @@ def process_record(record_id: int) -> dict:
         record.status = RecordStatus.processing
         db.commit()
 
-        # ── 3. Analyse de sentiment (DistilBERT) ─────────────
+        # ── 3. Analyse de sentiment (BERT multilingue, supporte le français) ──
         from transformers import pipeline
 
         sentiment_pipeline = pipeline(
             "sentiment-analysis",
-            model="distilbert-base-uncased-finetuned-sst-2-english",
+            model="nlptown/bert-base-multilingual-uncased-sentiment",
         )
 
         result = sentiment_pipeline(record.raw_text[:512])[0]
 
+        # Le modèle retourne "1 star" … "5 stars" — on mappe vers NEGATIVE/NEUTRAL/POSITIVE
+        stars = int(result["label"][0])
+        if stars <= 2:
+            sentiment_label = "NEGATIVE"
+        elif stars == 3:
+            sentiment_label = "NEUTRAL"
+        else:
+            sentiment_label = "POSITIVE"
+
         # ── 4. Met à jour le record avec les résultats ────────
-        record.sentiment_label = result["label"]
+        record.sentiment_label = sentiment_label
         record.sentiment_score = round(result["score"], 4)
         record.status          = RecordStatus.completed
         record.processed_at    = datetime.utcnow()
